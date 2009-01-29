@@ -1,7 +1,45 @@
 package  POE::Filter::Hessian;
 
 use Moose;
+use Hessian::Translator;
 
+has 'version' => ( is => 'ro', isa => 'Int', default => 1 );
+has 'translator' => (
+    is      => 'ro',
+    isa     => 'Hessian::Translator',
+    lazy    => 1,
+    default => sub {
+        my $self    = shift;
+        my $version = $self->version();
+        return Hessian::Translator->new( version => $version );
+      }
+
+);
+
+
+sub clone {    #{{{
+    my $self = shift;
+}    #}}}
+
+sub get_one_start {    #{{{
+    my ( $self, $arg ) = @_;
+}    #}}}
+
+sub get_one {    #{{{
+    my $self = shift;
+}    #}}}
+
+sub get {    #{{{
+    my ( $self, $arg ) = @_;
+}    #}}}
+
+sub put {    #{{{
+    my ( $self, $arg ) = @_;
+}    #}}}
+
+sub get_pending {    #{{{
+    my $self = shift;
+}    #}}}
 
 "one, but we're not the same";
 
