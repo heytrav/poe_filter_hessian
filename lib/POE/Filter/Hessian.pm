@@ -49,7 +49,7 @@ __END__
 =head1 NAME
 
 POE::Filter::Hessian - Translate datastructures to and from Hessian for
-transmission Wheel::ReadWrite
+transmission via a POE ReadWrite wheel.
 
 =head1 SYNOPSIS
 
