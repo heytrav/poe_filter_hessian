@@ -4,7 +4,7 @@ use Moose;
 use Hessian::Translator;
 
 has 'version' => ( is => 'ro', isa => 'Int', default => 1 );
-has 'translator' => (
+has 'translator' => (#{{{
     is      => 'ro',
     isa     => 'Hessian::Translator',
     lazy    => 1,
@@ -14,7 +14,7 @@ has 'translator' => (
         return Hessian::Translator->new( version => $version );
       }
 
-);
+);#}}}
 
 
 sub clone {    #{{{
@@ -57,4 +57,14 @@ transmission Wheel::ReadWrite
 
 =head1 INTERFACE
 
+=head2 clone
 
+=head2 get_one_start
+
+=head2 get_one
+
+=head2 get
+
+=head2 put
+
+=head2 get_pending
