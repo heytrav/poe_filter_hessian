@@ -18,6 +18,7 @@ sub t005_create_filter : Test(2) {    #{{{
     can_ok($translator, qw/clone/);
 }    #}}}
 
+
 "one, but we're not the same";
 
 __END__

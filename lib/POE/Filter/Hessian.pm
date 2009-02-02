@@ -19,6 +19,7 @@ has 'translator' => (#{{{
 
 sub clone {    #{{{
     my $self = shift;
+    my $translator = $self->translator();
 }    #}}}
 
 sub get_one_start {    #{{{
