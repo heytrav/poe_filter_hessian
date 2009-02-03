@@ -3,6 +3,8 @@ package  POE::Filter::Hessian;
 use Moose;
 use Hessian::Translator;
 
+with 'MooseX::Clone';
+
 has 'version' => ( is => 'ro', isa => 'Int', default => 1 );
 has 'translator' => (#{{{
     is      => 'ro',
@@ -15,12 +17,6 @@ has 'translator' => (#{{{
       }
 
 );#}}}
-
-
-sub clone {    #{{{
-    my $self = shift;
-    my $translator = $self->translator();
-}    #}}}
 
 sub get_one_start {    #{{{
     my ( $self, $arg ) = @_;
