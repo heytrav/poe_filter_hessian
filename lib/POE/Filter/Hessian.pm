@@ -19,19 +19,32 @@ has 'translator' => (#{{{
 );#}}}
 
 sub get_one_start {    #{{{
-    my ( $self, $arg ) = @_;
+    my ( $self, $array ) = @_;
+    my $hessian_string = join '' => @{$array};
+    $self->translator()->input_string($hessian_string);
+
 }    #}}}
 
 sub get_one {    #{{{
     my $self = shift;
+    my $translator = $self->translator();
+    return [$translator->deserialize_message()];
 }    #}}}
 
 sub get {    #{{{
-    my ( $self, $arg ) = @_;
+    my ( $self, $array ) = @_;
+    my $translator = $self->translator();
+    my $input_string = join '' => @{$array };
+    $translator->input_string($input_string);
+    return $translator->process_message();
 }    #}}}
 
 sub put {    #{{{
-    my ( $self, $arg ) = @_;
+    my ( $self, $array ) = @_;
+    my $translator = $self->translator();
+    my @data = map {$translator->serialize_message($_) } @{ $array};
+    return \@data;
+
 }    #}}}
 
 sub get_pending {    #{{{
