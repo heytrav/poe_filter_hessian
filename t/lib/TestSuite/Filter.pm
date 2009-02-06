@@ -4,14 +4,18 @@ use strict;
 use warnings;
 use base 'Test::Class';
 
+use YAML;
 use Test::More;
 use Test::Deep;
 
 use POE::Filter::Hessian;
 
+__PACKAGE__->SKIP_CLASS(1);
+
 sub t005_create_filter : Test(2) {    #{{{
     my $self       = shift;
-    my $filter     = POE::Filter::Hessian->new( version => 1 );
+    my $version = $self->{version};
+    my $filter     = POE::Filter::Hessian->new( version => $version );
     my $translator = $filter->translator();
     isa_ok( $translator, 'Hessian::Translator',
         'Object received from translator accessor' );
@@ -20,18 +24,7 @@ sub t005_create_filter : Test(2) {    #{{{
     $self->{filter} = $filter;
 }    #}}}
 
-sub t007_hessian_simple_buffer_read {    #{{{
-    my $self             = shift;
-    my $hessian_elements = [
-        "Vt\x00\x04[intl\x00\x00\x00\x02\x90\x91z",
-        "\x4dt\x00\x08SomeType\x05color\x0aaquamarine"
-          . "\x05model\x06Beetle\x07mileageI\x00\x01\x00\x00z",
-        "Mt\x00\x0aLinkedListS\x00"
-          . "\x04headI\x00\x00\x00\x01S\x00\x04tailR\x00\x00\x00\x04z",
-    ];
-    my $filter = $self->{filter};
-    $filter->get_one_start($hessian_elements);
-}    #}}}
+
 
 "one, but we're not the same";
 

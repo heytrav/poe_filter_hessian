@@ -22,7 +22,6 @@ sub get_one_start {    #{{{
     my ( $self, $array ) = @_;
     my $hessian_string = join '' => @{$array};
     $self->translator()->input_string($hessian_string);
-
 }    #}}}
 
 sub get_one {    #{{{
@@ -42,6 +41,7 @@ sub get {    #{{{
 sub put {    #{{{
     my ( $self, $array ) = @_;
     my $translator = $self->translator();
+    $translator->serializer();
     my @data = map {$translator->serialize_message($_) } @{ $array};
     return \@data;
 
