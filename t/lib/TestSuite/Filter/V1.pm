@@ -22,24 +22,25 @@ sub t007_hessian_simple_buffer_read : Test(5) {    #{{{
         "\x4dt\x00\x08SomeType\x05color\x0aaquamarine"
           . "\x05model\x06Beetle\x07mileageI\x00\x01\x00\x00z",
         "Mt\x00\x0aLinkedListS\x00"
-          . "\x04headI\x00\x00\x00\x01S\x00\x04tailR\x00\x00\x00\x04z",
+          . "\x04headI\x00\x00\x00\x01S\x00\x04tailR\x00\x00\x00\x02z",
     ];
     my $filter = $self->{filter};
     $filter->get_one_start($hessian_elements);
-    my $some_chunk = $filter->get_one();
-    cmp_deeply( $some_chunk->[0], [ 0, 1 ],
-        "First chunk taken out of filter." );
-    my $second_chunk = $filter->get_one();
-    isa_ok( $second_chunk->[0], 'SomeType',
+    my $some_chunk = $filter->get_one()->[0];
+    cmp_deeply( $some_chunk, [ 0, 1 ],
+        "Array [ 0, 1] taken out of filter." );
+    my $second_chunk = $filter->get_one()->[0];
+    isa_ok( $second_chunk, 'SomeType',
         'Data structure returned by deserializer' );
-    is( $second_chunk->[0]->{model},
+    print "Object: ".Dump($second_chunk)."\n";
+    is( $second_chunk->{model},
         'Beetle', 'Model attribute has correct value.' );
-    like( $second_chunk->[0]->{mileage},
+    like( $second_chunk->{mileage},
         qr/\d+/, 'Mileage attribute is an integer.' );
 
     my $third_chunk = $filter->get_one()->[0];
     isa_ok( $third_chunk, 'LinkedList', "Object parsed by deserializer" );
-    $self->{dataset1}     = [ $some_chunk, $second_chunk];
+    $self->{dataset1}     = [ $some_chunk, $second_chunk, $third_chunk];
     $self->{hessian_sets} = $hessian_elements;
 
 }    #}}}
@@ -66,7 +67,6 @@ sub t009_hessian_filter_get : Test(3) {    #{{{
     );
 
     my $object = $processed_chunks->[2];
-
     is( $object->color(), 'green', 'Correctly accessed object color' );
     is( $object->model(), 'civic', 'Correclty accessed object model' );
 }    #}}}
