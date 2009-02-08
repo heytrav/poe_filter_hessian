@@ -1,4 +1,4 @@
-package  TestSuite::Filter::V1;
+package  TestSuite::Filter::V2;
 
 use strict;
 use warnings;
@@ -12,22 +12,24 @@ use POE::Filter::Hessian;
 
 sub prep001_set_version : Test(startup) {    #{{{
     my $self = shift;
-    $self->{version} = 1;
+    $self->{version} = 2;
 }    #}}}
 
 sub t007_hessian_simple_buffer_read : Test(5) {    #{{{
     my $self             = shift;
     my $hessian_elements = [
-        "Vt\x00\x04[intl\x00\x00\x00\x02\x90\x91z",
-        "\x4dt\x00\x08SomeType\x05color\x0aaquamarine"
-          . "\x05model\x06Beetle\x07mileageI\x00\x01\x00\x00z",
-        "Mt\x00\x0aLinkedListS\x00"
-          . "\x04headI\x00\x00\x00\x01S\x00\x04tailR\x00\x00\x00\x02z",
+        "\x55\x04[int\x90\x91\xd7\xff\xffZ",
+        "\x4d\x08SomeType\x05color\x0aaquamarine"
+          . "\x05model\x06Beetle\x07mileageI\x00\x01\x00\x00Z",
     ];
     my $filter = $self->{filter};
     $filter->get_one_start($hessian_elements);
     my $some_chunk = $filter->get_one()->[0];
-    cmp_deeply( $some_chunk, [ 0, 1 ], "Array [ 0, 1] taken out of filter." );
+    cmp_deeply(
+        $some_chunk,
+        [ 0, 1, 262143 ],
+        "Array [ 0, 1, 262143 ] taken out of filter."
+    );
     my $second_chunk = $filter->get_one()->[0];
     isa_ok( $second_chunk, 'SomeType',
         'Data structure returned by deserializer' );
@@ -36,31 +38,32 @@ sub t007_hessian_simple_buffer_read : Test(5) {    #{{{
     like( $second_chunk->{mileage},
         qr/\d+/, 'Mileage attribute is an integer.' );
 
-    my $third_chunk = $filter->get_one()->[0];
-    isa_ok( $third_chunk, 'LinkedList', "Object parsed by deserializer" );
-    $self->{dataset1} = [ $some_chunk, $second_chunk, $third_chunk ];
+    $self->{dataset1} = [ $some_chunk, $second_chunk, ];
     $self->{hessian_sets} = $hessian_elements;
 
 }    #}}}
 
 sub t009_hessian_filter_get : Test(3) {    #{{{
     my $self             = shift;
+    my $filter           = POE::Filter::Hessian->new( version => 2 );
+    local $TODO = "Need to workout serialization of some "
+    ."Hessian Version 2 datatypes";
+    my $first_hash = { 1 => 'hello', word => 'Beetle' };
+
+
+
     my $hessian_elements = [
-        "MI\x00\x00\x00\x01S\x00\x03fee"
-          . "I\x00\x00\x00\x10S\x00\x03fieI\x00\x00\x01\x00S\x00\x03foez",
-        "O\x9bexample.Car\x92\x05color\x05model",
-        "o\x90\x05green\x05civic",
-        "Vt\x00\x04[intl\x00\x00\x00\x02\x90\x91z",
-        "\x4dt\x00\x08SomeType\x05color\x0aaquamarine"
-          . "\x05model\x06Beetle\x07mileageI\x00\x01\x00\x00z",
-        "Mt\x00\x0aLinkedListS\x00"
-          . "\x04headI\x00\x00\x00\x01S\x00\x04tailR\x00\x00\x00\x04z",
+        "\x48\x91\x05hello\x04word\x06BeetleZ",
+        "C\x0bexample.Car\x92\x05color\x05model",
+        "\x60\x03RED\x06ferari"
     ];
 
-    my $processed_chunks = $self->{filter}->get($hessian_elements);
+    my $processed_chunks = $filter->get($hessian_elements);
+    print "Got chunks:\n" . Dump($processed_chunks) . "\n";
+
     cmp_deeply(
         $processed_chunks->[0],
-        { 1 => 'fee', 16 => 'fie', 256 => 'foe' },
+        { 1 => 'hello', word => 'Beetle' },
         "Received expected datastructure."
     );
 
@@ -71,7 +74,9 @@ sub t009_hessian_filter_get : Test(3) {    #{{{
 
 sub t011_put_hessian_data : Test(2) {    #{{{
     my $self             = shift;
-    my $filter           = POE::Filter::Hessian->new( version => 1 );
+    my $filter           = POE::Filter::Hessian->new( version => 2 );
+    local $TODO = "Need to workout serialization of some "
+    ."Hessian Version 2 datatypes";
     my $dataset          = $self->{dataset1};
     my $hessian_elements = $self->{hessian_sets};
 
