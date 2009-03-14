@@ -62,9 +62,8 @@ sub t009_hessian_filter_get : Test(3) {    #{{{
     ];
 
     my $processed_chunks = $self->{filter}->get($hessian_elements);
-    print "Got datastructure: ".Dump($processed_chunks)."\n";
     cmp_deeply(
-        $processed_chunks,
+        $processed_chunks->[0]->[0],
         { 1 => 'fee', 16 => 'fie', 256 => 'foe' },
         "Received expected datastructure."
     );

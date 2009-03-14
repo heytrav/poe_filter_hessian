@@ -47,10 +47,12 @@ sub get_one {    #{{{
 
 sub get {    #{{{
     my ( $self, $array ) = @_;
-    my $translator = $self->translator();
-    my $input_string = join '' => @{$array};
-    $translator->input_string($input_string);
-    return $translator->process_message();
+    $self->get_one_start($array);
+   my $result =  []; 
+while (  my $processed_chunk = $self->get_one()) {
+    push @{ $result}, $processed_chunk;
+}
+    return $result;
 }    #}}}
 
 sub put {    #{{{
