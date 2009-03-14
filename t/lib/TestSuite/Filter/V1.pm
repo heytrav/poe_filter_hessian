@@ -45,11 +45,15 @@ sub t007_hessian_simple_buffer_read : Test(5) {    #{{{
 
 sub t009_hessian_filter_get : Test(3) {    #{{{
     my $self             = shift;
+    my $map ="MI\x00\x00\x00\x01"
+      ."S\x00\x03fee"
+        ."I\x00\x00\x00\x10"
+          ."S\x00\x03fie"
+            ."I\x00\x00\x01\x00"
+              ."S\x00\x03foe"
+                ."z" ;
     my $hessian_elements = [
-        "MI\x00\x00\x00\x01S\x00\x03fee"
-          . "I\x00\x00\x00\x10S\x00\x03fieI\x00\x00\x01\x00S\x00\x03foez",
-        "O\x9bexample.Car\x92\x05color\x05model",
-        "o\x90\x05green\x05civic",
+        $map,
         "Vt\x00\x04[intl\x00\x00\x00\x02\x90\x91z",
         "\x4dt\x00\x08SomeType\x05color\x0aaquamarine"
           . "\x05model\x06Beetle\x07mileageI\x00\x01\x00\x00z",
@@ -58,8 +62,9 @@ sub t009_hessian_filter_get : Test(3) {    #{{{
     ];
 
     my $processed_chunks = $self->{filter}->get($hessian_elements);
+    print "Got datastructure: ".Dump($processed_chunks)."\n";
     cmp_deeply(
-        $processed_chunks->[0],
+        $processed_chunks,
         { 1 => 'fee', 16 => 'fie', 256 => 'foe' },
         "Received expected datastructure."
     );
@@ -97,4 +102,4 @@ TestSuite::Filter - Base class for testing POE::Filter::Hessian
 
 =head1 INTERFACE
 
-
+/bin/bash: format: command not found

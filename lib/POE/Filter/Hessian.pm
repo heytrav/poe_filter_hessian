@@ -6,34 +6,49 @@ use Hessian::Translator;
 with 'MooseX::Clone';
 
 has 'version' => ( is => 'ro', isa => 'Int', default => 1 );
-has 'translator' => (#{{{
+
+has 'translator' => (    #{{{
     is      => 'ro',
     isa     => 'Hessian::Translator',
     lazy    => 1,
     default => sub {
         my $self    = shift;
         my $version = $self->version();
-        return Hessian::Translator->new( version => $version );
+        my $translator =
+          Hessian::Translator->new( chunked => 1, version => $version );
+        return $translator;
       }
 
-);#}}}
+);    #}}}
+
+has 'internal_buffer' => (
+    is      => 'rw',
+    isa     => 'ArrayRef',
+    default => sub {
+        [];
+      }
+
+);
 
 sub get_one_start {    #{{{
     my ( $self, $array ) = @_;
-    my $hessian_string = join '' => @{$array};
-    $self->translator()->input_string($hessian_string);
+    push @{ $self->internal_buffer() }, @{$array};
 }    #}}}
 
 sub get_one {    #{{{
-    my $self = shift;
+    my $self       = shift;
     my $translator = $self->translator();
-    return [$translator->deserialize_message()];
+   my $next_element = shift @{ $self->internal_buffer() };
+   return unless $next_element;
+
+   $translator->input_string($next_element);
+    return [ $translator->deserialize_message() ];
 }    #}}}
 
 sub get {    #{{{
     my ( $self, $array ) = @_;
     my $translator = $self->translator();
-    my $input_string = join '' => @{$array };
+    my $input_string = join '' => @{$array};
     $translator->input_string($input_string);
     return $translator->process_message();
 }    #}}}
@@ -42,7 +57,7 @@ sub put {    #{{{
     my ( $self, $array ) = @_;
     my $translator = $self->translator();
     $translator->serializer();
-    my @data = map {$translator->serialize_message($_) } @{ $array};
+    my @data = map { $translator->serialize_message($_) } @{$array};
     return \@data;
 
 }    #}}}
