@@ -22,25 +22,30 @@ has 'translator' => (    #{{{
 
 );                       #}}}
 
-#has 'internal_buffer' => (
-#    is      => 'rw',
-#    isa     => 'ArrayRef',
-#    default => sub {
-#        [];
-#    }
-#);
+has 'internal_buffer' => (
+    is      => 'rw',
+    isa     => 'ArrayRef',
+    default => sub {
+        [];
+    }
+);
 
 sub get_one_start {      #{{{
     my ( $self, $array ) = @_;
-    my $hessian_string = join '', @{$array};
-    $self->translator()->append_input_buffer($hessian_string);
+    my $internal_buffer = $self->internal_buffer();
+    push @{$internal_buffer}, @{$array};
 }    #}}}
 
 sub get_one {    #{{{
-    my $self       = shift;
-    my $translator = $self->translator();
+    my $self            = shift;
+    my $translator      = $self->translator();
+    my $internal_buffer = $self->internal_buffer();
+    my $element         = shift @{$internal_buffer};
+    return unless $element;
+    $translator->append_input_buffer($element);
+
     my $result;
-    eval { $result = $self->process_message(); };
+    eval { $result = $translator->process_message(); };
     if ( my $e = $@ ) {
         my $exception = ref $e;
         if ($exception) {

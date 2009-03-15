@@ -44,14 +44,14 @@ sub t007_hessian_simple_buffer_read : Test(5) {    #{{{
 }    #}}}
 
 sub t009_hessian_filter_get : Test(3) {    #{{{
-    my $self             = shift;
-    my $map ="MI\x00\x00\x00\x01"
-      ."S\x00\x03fee"
-        ."I\x00\x00\x00\x10"
-          ."S\x00\x03fie"
-            ."I\x00\x00\x01\x00"
-              ."S\x00\x03foe"
-                ."z" ;
+    my $self = shift;
+    my $map =
+        "MI\x00\x00\x00\x01"
+      . "S\x00\x03fee"
+      . "I\x00\x00\x00\x10"
+      . "S\x00\x03fie"
+      . "I\x00\x00\x01\x00"
+      . "S\x00\x03foe" . "z";
     my $hessian_elements = [
         $map,
         "Vt\x00\x04[intl\x00\x00\x00\x02\x90\x91z",
@@ -63,12 +63,13 @@ sub t009_hessian_filter_get : Test(3) {    #{{{
 
     my $processed_chunks = $self->{filter}->get($hessian_elements);
     cmp_deeply(
-        $processed_chunks->[0]->[0],
+        $processed_chunks->[0],
         { 1 => 'fee', 16 => 'fie', 256 => 'foe' },
         "Received expected datastructure."
     );
 
     my $object = $processed_chunks->[2];
+    print "Got object: " . Dump($object) . "\n";
     is( $object->color(), 'green', 'Correctly accessed object color' );
     is( $object->model(), 'civic', 'Correclty accessed object model' );
 }    #}}}
