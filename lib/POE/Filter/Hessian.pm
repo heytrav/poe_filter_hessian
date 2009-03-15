@@ -2,6 +2,7 @@ package  POE::Filter::Hessian;
 
 use Moose;
 use Hessian::Translator;
+use Hessian::Exception;
 
 with 'MooseX::Clone';
 
@@ -19,39 +20,45 @@ has 'translator' => (    #{{{
         return $translator;
       }
 
-);    #}}}
+);                       #}}}
 
-has 'internal_buffer' => (
-    is      => 'rw',
-    isa     => 'ArrayRef',
-    default => sub {
-        [];
-      }
+#has 'internal_buffer' => (
+#    is      => 'rw',
+#    isa     => 'ArrayRef',
+#    default => sub {
+#        [];
+#    }
+#);
 
-);
-
-sub get_one_start {    #{{{
+sub get_one_start {      #{{{
     my ( $self, $array ) = @_;
-    push @{ $self->internal_buffer() }, @{$array};
+    my $hessian_string = join '', @{$array};
+    $self->translator()->append_input_buffer($hessian_string);
 }    #}}}
 
 sub get_one {    #{{{
     my $self       = shift;
     my $translator = $self->translator();
-   my $next_element = shift @{ $self->internal_buffer() };
-   return unless $next_element;
+    my $result;
+    eval { $result = $self->process_message(); };
+    if ( my $e = $@ ) {
+        my $exception = ref $e;
+        if ($exception) {
+            return if Exception::Class->caught('MessageIncomplete::X');
+            $e->rethrow();
+        }
+    }
+    return [$result];
 
-   $translator->input_string($next_element);
-    return [ $translator->deserialize_message() ];
 }    #}}}
 
 sub get {    #{{{
     my ( $self, $array ) = @_;
     $self->get_one_start($array);
-   my $result =  []; 
-while (  my $processed_chunk = $self->get_one()) {
-    push @{ $result}, $processed_chunk;
-}
+    my $result = [];
+    while ( my $processed_chunk = $self->get_one() ) {
+        push @{$result}, @{$processed_chunk};
+    }
     return $result;
 }    #}}}
 
