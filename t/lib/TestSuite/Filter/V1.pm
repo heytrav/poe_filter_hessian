@@ -52,6 +52,7 @@ sub t009_hessian_filter_get : Test(3) {    #{{{
       . "S\x00\x03fie"
       . "I\x00\x00\x01\x00"
       . "S\x00\x03foe" . "z";
+      my $object_definition = "";
     my $hessian_elements = [
         $map,
         "Vt\x00\x04[intl\x00\x00\x00\x02\x90\x91z",
@@ -70,8 +71,8 @@ sub t009_hessian_filter_get : Test(3) {    #{{{
 
     my $object = $processed_chunks->[2];
     print "Got object: " . Dump($object) . "\n";
-    is( $object->color(), 'green', 'Correctly accessed object color' );
-    is( $object->model(), 'civic', 'Correclty accessed object model' );
+    is( $object->{color}, 'aquamarine', 'Correctly accessed object color' );
+    is( $object->{model}, 'Beetle', 'Correclty accessed object model' );
 }    #}}}
 
 sub t011_put_hessian_data : Test(2) {    #{{{
