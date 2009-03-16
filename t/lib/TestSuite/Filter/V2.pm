@@ -15,12 +15,14 @@ sub prep001_set_version : Test(startup) {    #{{{
     $self->{version} = 2;
 }    #}}}
 
-sub t007_hessian_simple_buffer_read : Test(5) {    #{{{
+sub t007_hessian_simple_buffer_read : Test(4) {    #{{{
     my $self             = shift;
     my $hessian_elements = [
-        "\x55\x04[int\x90\x91\xd7\xff\xffZ",
-        "\x4d\x08SomeType\x05color\x0aaquamarine"
-          . "\x05model\x06Beetle\x07mileageI\x00\x01\x00\x00Z",
+        "Vt\x00\x04[int\x90\x91\xd7\xff\xffz",
+        
+    "Mt\x00\x08SomeType"
+    ."\x05color\x0aaquamarine"
+      . "\x05model\x06Beetle\x07mileageI\x00\x01\x00\x00z",
     ];
     my $filter = $self->{filter};
     $filter->get_one_start($hessian_elements);
@@ -46,20 +48,18 @@ sub t007_hessian_simple_buffer_read : Test(5) {    #{{{
 sub t009_hessian_filter_get : Test(3) {    #{{{
     my $self             = shift;
     my $filter           = POE::Filter::Hessian->new( version => 2 );
-    local $TODO = "Need to workout serialization of some "
-    ."Hessian Version 2 datatypes";
     my $first_hash = { 1 => 'hello', word => 'Beetle' };
 
+    my $hessian_data = "Ot\x00\x0bexample.Car\x92\x05color\x05model";
 
 
     my $hessian_elements = [
-        "\x48\x91\x05hello\x04word\x06BeetleZ",
-        "C\x0bexample.Car\x92\x05color\x05model",
-        "\x60\x03RED\x06ferari"
+        "M\x91\x05hello\x04word\x06Beetlez",
+        "Ot\x00\x0bexample.Car\x92\x05color\x05model",
+        "o\x90\x03RED\x06ferari"
     ];
 
     my $processed_chunks = $filter->get($hessian_elements);
-    print "Got chunks:\n" . Dump($processed_chunks) . "\n";
 
     cmp_deeply(
         $processed_chunks->[0],
@@ -68,15 +68,13 @@ sub t009_hessian_filter_get : Test(3) {    #{{{
     );
 
     my $object = $processed_chunks->[2];
-    is( $object->color(), 'green', 'Correctly accessed object color' );
-    is( $object->model(), 'civic', 'Correclty accessed object model' );
+    is( $object->color(), 'RED', 'Correctly accessed object color' );
+    is( $object->model(), 'ferari', 'Correclty accessed object model' );
 }    #}}}
 
 sub t011_put_hessian_data : Test(2) {    #{{{
     my $self             = shift;
     my $filter           = POE::Filter::Hessian->new( version => 2 );
-    local $TODO = "Need to workout serialization of some "
-    ."Hessian Version 2 datatypes";
     my $dataset          = $self->{dataset1};
     my $hessian_elements = $self->{hessian_sets};
 

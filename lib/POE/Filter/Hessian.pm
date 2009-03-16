@@ -73,7 +73,6 @@ sub put {    #{{{
     $translator->serializer();
     my @data = map { $translator->serialize_message($_) } @{$array};
     return \@data;
-
 }    #}}}
 
 sub get_pending {    #{{{
