@@ -1,5 +1,6 @@
 package  POE::Filter::Hessian;
 
+use version; our $VERSION = qv('0.1.1');
 use Moose;
 use Hessian::Translator;
 use Hessian::Exception;
@@ -91,7 +92,33 @@ transmission via a POE ReadWrite wheel.
 
 =head1 SYNOPSIS
 
+   use POE::Filter::Hessian;
+
+   my $filter  = POE::Filter::Hessian->new( version => 2 );
+    my $hessian_elements = [
+        "M\x91\x05hello\x04word\x06Beetlez",
+        "Ot\x00\x0bexample.Car\x92\x05color\x05model",
+        "o\x90\x03RED\x06ferari"
+    ];
+
+    my $processed_chunks = $filter->get($hessian_elements);
+    my $map = $processed_chunks->[0];
+
+   # $map contains:
+   #     { 1 => 'hello', word => 'Beetle' },
+
+
+    my $object = $processed_chunks->[2];
+    my $color = $object->color();
+    my $model = $object->model();
+
 =head1 DESCRIPTION
+
+The goal of POE::Filter::Hessian is to combine the versatility of POE
+with the Hessian serialization protocol.  
+
+As POE::Filter::Hessian is based on L<Hessian::Client> which is still in a fairly
+experimental state, it can also be considered to be highly experimental.
 
 =head1 INTERFACE
 
@@ -99,10 +126,23 @@ transmission via a POE ReadWrite wheel.
 
 =head2 get_one_start
 
+Accepts a list of Hessian serialized strings. The list of strings is added to
+the internal buffer.
+
 =head2 get_one
+
+If possible, parse one element from the buffer. Returns a single deserialized
+datastructure or C<undef> if the buffer contains an incomplete message.
 
 =head2 get
 
+Greedily process as much of the buffer as possible.
+
 =head2 put
 
+Accepts a list of items to be serialized.  The result is an array reference
+containing a list of Hessian strings representing the serialized
+datastructures.
+
 =head2 get_pending
+

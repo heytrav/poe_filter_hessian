@@ -18,9 +18,10 @@ my $builder = Module::Build->new(
         'version'                       => 0,
         'Contextual::Return'            => 0,
         'Moose'                         => 0,
+        'MooseX::Clone'                         => 0,
         'Exception::Class'              => 0,
         'YAML'                          => 0,
-        'Hessian::Client'               => '>=0.1.3'
+        'Hessian::Client'               => '>=0.1.6'
 
     },
     add_to_cleanup => ['POE-Filter-*'],
