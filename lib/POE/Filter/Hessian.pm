@@ -1,9 +1,12 @@
 package  POE::Filter::Hessian;
 
-use version; our $VERSION = qv('0.1.1');
+use version; our $VERSION = qv('0.1.3');
 use Moose;
 use Hessian::Translator;
 use Hessian::Exception;
+use YAML;
+use Smart::Comments;
+
 
 with 'MooseX::Clone';
 
@@ -42,15 +45,16 @@ sub get_one {    #{{{
     my $translator      = $self->translator();
     my $internal_buffer = $self->internal_buffer();
     my $element         = shift @{$internal_buffer};
-    return unless $element;
+    return [] unless $element;
     $translator->append_input_buffer($element);
+    ### get_one
 
     my $result;
     eval { $result = $translator->process_message(); };
     if ( my $e = $@ ) {
         my $exception = ref $e;
         if ($exception) {
-            return if Exception::Class->caught('MessageIncomplete::X');
+            return [] if Exception::Class->caught('MessageIncomplete::X');
             $e->rethrow();
         }
     }
@@ -63,6 +67,10 @@ sub get {    #{{{
     $self->get_one_start($array);
     my $result = [];
     while ( my $processed_chunk = $self->get_one() ) {
+        my $processed_ref = ref $processed_chunk;
+        ### Processed data: Dump($processed_chunk)
+        ### type: $processed_ref
+        last unless @{$processed_chunk};
         push @{$result}, @{$processed_chunk};
     }
     return $result;

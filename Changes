@@ -1,0 +1,6 @@
+Revision History for POE::Filter::Hessian
+
+
+0.1.2 Thu Mar 16 2009
+        BUGFIX: Returning an empty array from get_one for empty results after
+        noting that POE::Wheel::ReadWrite throws an error.

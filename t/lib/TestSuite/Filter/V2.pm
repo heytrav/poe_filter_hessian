@@ -7,6 +7,7 @@ use base 'TestSuite::Filter';
 use YAML;
 use Test::More;
 use Test::Deep;
+use Smart::Comments;
 
 use POE::Filter::Hessian;
 
@@ -18,20 +19,17 @@ sub prep001_set_version : Test(startup) {    #{{{
 sub t007_hessian_simple_buffer_read : Test(4) {    #{{{
     my $self             = shift;
     my $hessian_elements = [
-        "Vt\x00\x04[int\x90\x91\xd7\xff\xffz",
-        
-    "Mt\x00\x08SomeType"
-    ."\x05color\x0aaquamarine"
-      . "\x05model\x06Beetle\x07mileageI\x00\x01\x00\x00z",
+        "V\x04[int\x92\x90\x91",
+        "\x4d\x08SomeType\x05color\x0aaquamarine"
+          . "\x05model\x06Beetle\x07mileageI\x00\x01\x00\x00Z"
     ];
     my $filter = $self->{filter};
+    ### got filter instance
     $filter->get_one_start($hessian_elements);
+    ### inserted data into filter buffer
     my $some_chunk = $filter->get_one()->[0];
-    cmp_deeply(
-        $some_chunk,
-        [ 0, 1, 262143 ],
-        "Array [ 0, 1, 262143 ] taken out of filter."
-    );
+    ### called get_one
+    cmp_deeply( $some_chunk, [ 0, 1 ], "Array [ 0, 1,] taken out of filter." );
     my $second_chunk = $filter->get_one()->[0];
     isa_ok( $second_chunk, 'SomeType',
         'Data structure returned by deserializer' );
@@ -46,17 +44,16 @@ sub t007_hessian_simple_buffer_read : Test(4) {    #{{{
 }    #}}}
 
 sub t009_hessian_filter_get : Test(3) {    #{{{
-    my $self             = shift;
-    my $filter           = POE::Filter::Hessian->new( version => 2 );
+    my $self       = shift;
+    my $filter     = POE::Filter::Hessian->new( version => 2 );
     my $first_hash = { 1 => 'hello', word => 'Beetle' };
 
     my $hessian_data = "Ot\x00\x0bexample.Car\x92\x05color\x05model";
 
-
     my $hessian_elements = [
-        "M\x91\x05hello\x04word\x06Beetlez",
-        "Ot\x00\x0bexample.Car\x92\x05color\x05model",
-        "o\x90\x03RED\x06ferari"
+        "\x48\x91\x05hello\x04word\x06BeetleZ",
+        "C\x0bexample.Car\x92\x05color\x05model",
+        "\x60\x03RED\x06ferari"
     ];
 
     my $processed_chunks = $filter->get($hessian_elements);
@@ -68,7 +65,9 @@ sub t009_hessian_filter_get : Test(3) {    #{{{
     );
 
     my $object = $processed_chunks->[2];
-    is( $object->color(), 'RED', 'Correctly accessed object color' );
+    ### processed_chunks: Dump($processed_chunks)
+
+    is( $object->color(), 'RED',    'Correctly accessed object color' );
     is( $object->model(), 'ferari', 'Correclty accessed object model' );
 }    #}}}
 
@@ -77,6 +76,7 @@ sub t011_put_hessian_data : Test(2) {    #{{{
     my $filter           = POE::Filter::Hessian->new( version => 2 );
     my $dataset          = $self->{dataset1};
     my $hessian_elements = $self->{hessian_sets};
+    ### dataset: Dump($dataset)
 
     my $processed_hessian = $filter->put($dataset);
     isa_ok( $processed_hessian, 'ARRAY', "Received expected datastructure." );

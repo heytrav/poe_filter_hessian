@@ -5,7 +5,7 @@ use Module::Build;
 my $builder = Module::Build->new(
     module_name          => 'POE::Filter::Hessian',
     license              => 'perl',
-    dist_author          => 'William Travis Holton <wtholton@googlemail.com>',
+    dist_author          => 'William Travis Holton <cromulent2000-eisley@yahoo.de>',
     dist_version_from    => 'lib/POE/Filter/Hessian.pm',
     recursive_test_files => 1,
     'create_makefile_pl' => 'passthrough',
