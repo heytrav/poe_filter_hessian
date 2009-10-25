@@ -7,7 +7,7 @@ use base 'TestSuite::Filter';
 use YAML;
 use Test::More;
 use Test::Deep;
-use Smart::Comments;
+#use Smart::Comments;
 
 use POE::Filter::Hessian;
 
@@ -78,9 +78,12 @@ sub t011_put_hessian_data : Test(2) {    #{{{
     my $hessian_elements = $self->{hessian_sets};
     ### dataset: Dump($dataset)
 
-    my $processed_hessian = $filter->put($dataset);
+    my $processed_hessian = $filter->put( $dataset);
     isa_ok( $processed_hessian, 'ARRAY', "Received expected datastructure." );
     my $reverse_processed = $filter->get($processed_hessian);
+    my $obj_string = $processed_hessian->[1];
+    ### processed: Dump($processed_hessian)
+    ### object: $obj_string
     cmp_deeply( $dataset, $reverse_processed,
         "Received same datastructure we put in.." );
 }    #}}}
