@@ -9,7 +9,6 @@ my $builder = Module::Build->new(
     dist_author => 'William Travis Holton <cromulent2000_eisley@yahoo.de>',
     dist_version_from    => 'lib/POE/Filter/Hessian.pm',
     recursive_test_files => 1,
-    'create_makefile_pl' => 'passthrough',
     requires             => {
         'Test::More'         => 0,
         'Test::Class'        => 0,
@@ -23,7 +22,7 @@ my $builder = Module::Build->new(
         'Exception::Class'   => 0,
         'Smart::Comments'    => 0,
         'YAML'               => 0,
-        'Hessian::Client'    => '>=0.1.6'
+        'Hessian::Translator'    => 1.00
 
     },
     add_to_cleanup => ['POE-Filter-*'],
