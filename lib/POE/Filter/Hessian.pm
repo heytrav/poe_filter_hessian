@@ -133,7 +133,7 @@ transmission via a POE ReadWrite wheel.
 The goal of POE::Filter::Hessian is to combine the versatility of POE
 with the Hessian serialization protocol.  
 
-As POE::Filter::Hessian is based on L<Hessian::Client> which is still in a fairly
+As POE::Filter::Hessian is based on L<Hessian::Translator> which is still in a fairly
 experimental state, it can also be considered to be highly experimental.
 
 =head1 INTERFACE
